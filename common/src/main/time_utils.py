@@ -38,10 +38,12 @@ class TimeUtils:
         return datetime.datetime.strptime(datetime_str, format_str)
 
     @staticmethod
-    def get_timestamp():
+    def get_timestamp(milli_seconds = False):
         """
         时间戳
         """
+        if milli_seconds:
+            return int(time.time() * 1000)
         return int(time.time())
 
     @staticmethod
@@ -58,17 +60,16 @@ class TimeUtils:
         """
         time_difference = end_time - start_time
         units = [
-            (31536000, "年"),
-            (2592000, "月"),
-            (86400, "天"),
-            (3600, "小时"),
-            (60, "分钟"),
-            (1, "秒")
+            (86400000, "天"),
+            (3600000, "小时"),
+            (60000, "分钟"),
+            (1000, "秒"),
+            (1, "毫秒")
         ]
 
         parts = []
-        for unit_seconds, unit_name in units:
-            unit_value, time_difference = divmod(time_difference, unit_seconds)
+        for unit_milliseconds, unit_name in units:
+            unit_value, time_difference = divmod(time_difference, unit_milliseconds)
             if unit_value > 0:
                 parts.append(f"{int(unit_value)}{unit_name}")
 
