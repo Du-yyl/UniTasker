@@ -18,6 +18,29 @@ class ExpandException(Exception):
 class UtilsException(Enum):
     pass
 
+# 示例
+# class Error(Exception):
+#     """Base class for rarfile errors."""
+#
+#
+# class BadRarFile(Error):
+#     """Incorrect data in archive."""
+#
+#
+# class NotRarFile(Error):
+#     """The file is not RAR archive."""
+#
+#
+# class BadRarName(Error):
+#     """Cannot guess multipart name components."""
+#
+#
+# class NoRarEntry(Error):
+#     """File not found in RAR"""
+#
+#
+# class PasswordRequired(Error):
+#     """File requires password"""
 
 if __name__ == "__main__":
     pass
