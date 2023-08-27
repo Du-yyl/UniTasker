@@ -38,13 +38,11 @@ class TimeUtils:
         return datetime.datetime.strptime(datetime_str, format_str)
 
     @staticmethod
-    def get_timestamp(milli_seconds = False):
+    def get_timestamp():
         """
         时间戳
         """
-        if milli_seconds:
-            return int(time.time() * 1000)
-        return int(time.time())
+        return int(time.time() * 1000)
 
     @staticmethod
     def timestamp_to_datetime(timestamp, format_str="%Y-%m-%d %H:%M:%S"):

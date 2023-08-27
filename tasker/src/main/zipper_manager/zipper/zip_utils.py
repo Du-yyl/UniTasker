@@ -7,27 +7,17 @@
 #       c'est de voir le monde tel qu'il est et de l'aimer.
 import concurrent
 import concurrent.futures
+import contextlib
 import os
 import zipfile
 
 import pyzipper
 
+from src.main.file_utils import FileUtils
 from src.main.time_utils import TimeUtils
 
 
 class zip_utils:
-    @staticmethod
-    def zip_file(input_data,output_file,compression_level=zipfile.ZIP_DEFLATED):
-        # 输入内容不为空
-        # 输入内容为数组 且长度不为0
-
-        # 如果长度为 1
-            # 按照文件夹或文件进行处理 w
-        # 如果长度更长
-            # 如果更长使用追加方式 a
-        pass
-
-
     @staticmethod
     def encrypt_zip_file(input_file, output_file, password):
         """
@@ -48,48 +38,48 @@ class zip_utils:
             zipf.write(input_file, arcname=file_name)
 
     @staticmethod
-    def zip_single_file(input_file, output_zip, compression_level=zipfile.ZIP_DEFLATED):
+    def zipper(input_data, output_zip, compression_level=zipfile.ZIP_DEFLATED):
         """
-        压缩当个文件
-        """
-        with zipfile.ZipFile(output_zip, 'w', compression=compression_level) as zipf:
-            file_name = os.path.basename(input_file)
-            zipf.write(input_file, arcname=file_name)
+        压缩文件或文件夹到指定的ZIP文件中。
 
-    @staticmethod
-    def zip_single_folder(input_folder, output_zip, compression_level=zipfile.ZIP_DEFLATED):
+        :param input_data: 待压缩的文件或文件夹列表。
+        :param output_zip: 输出的ZIP文件路径。
+        :param compression_level: 压缩级别。
+        :return: 压缩操作是否成功，成功返回 (True, "文件压缩成功")，否则返回 (False, 错误消息)。
         """
-        压缩文件夹
-        """
-        # 如果文件夹存在
-        if os.path.exists(input_folder) is False:
-            print("指定文件不存在")
-            return False
+        # 如果为 None
+        if input_data is None:
+            return False, "压缩目录为 None"
+        # 如果长度为 0
+        if len(input_data) == 0:
+            return False, "压缩目录长度为 0"
+        # 是否是一个文件
+        if FileUtils.is_valid_path(output_zip) is False:
+            return False, "输出路径错误"
 
-        # 使用os.path模块的normpath函数来规范化路径
         normalized_path = os.path.normpath(output_zip)
-        # 使用os.path模块的isabs函数判断是否是绝对路径
-        if os.path.isfile(normalized_path) is False:
-            print("输出路径错误")
-            return False
-
-        with zipfile.ZipFile(output_zip, 'w', compression=compression_level) as zipf:
-            for root, _, files in os.walk(input_folder):
-                for file in files:
-                    file_path = os.path.join(root, file)
-                    arcname = os.path.relpath(file_path, input_folder)
-                    zipf.write(file_path, arcname=arcname)
-        return True
-
-    @staticmethod
-    def zip_multiple_files(input_files, output_zip, compression_level=zipfile.ZIP_DEFLATED):
-        """
-        压缩多个文件
-        """
-        with zipfile.ZipFile(output_zip, 'w', compression=compression_level) as zipf:
-            for input_file in input_files:
-                file_name = os.path.basename(input_file)
-                zipf.write(input_file, arcname=file_name)
+        # 文件是否存在
+        if os.path.exists(normalized_path):
+            with contextlib.suppress(FileNotFoundError):
+                os.remove(normalized_path)
+        # 压缩文件
+        with pyzipper.AESZipFile(output_zip, 'w', compression=compression_level) as zipf:
+            # 拿出内容进行压缩
+            for item in input_data:
+                normalized_item_path = os.path.normpath(item)
+                # 文件压缩
+                if os.path.isfile(normalized_item_path):
+                    file_name = os.path.basename(item)
+                    zipf.write(item, arcname=file_name)
+                # 文件夹压缩
+                if os.path.isdir(normalized_item_path):
+                    for root, _, files in os.walk(item):
+                        # 获取文件夹名称
+                        for file in files:
+                            file_path = os.path.join(root, file)
+                            arcname = os.path.relpath(file_path, item)
+                            zipf.write(file_path, arcname=arcname)
+        return True, "文件压缩成功"
 
 
 # D:\Python-frame\UniTasker\tasker\src\temp\新建 文本文档.txt
@@ -97,14 +87,14 @@ class zip_utils:
 # 前缀 b 跟随着单引号或双引号，可以用来创建字节字符串（bytes）。字节字符串是一种表示原始二进制数据的方式，特别在处理文件、加密等情况下非常有用。
 if __name__ == '__main__':
     folderArr = [
-        "D:\\Python-frame\\UniTasker\\tasker\\src\\temp",
-        "E:\\新建文件夹\\(XIUREN) - 鱼子酱Fish - Student girl after school"
+        "D:\\Python-frame\\UniTasker\\tasker\\src\\temp\\temp",
     ]
     outputSrc = "D:\\Python-frame\\UniTasker\\tasker\\src\\temp\\temp.zip"
 
     print("开始")
-    startTime = TimeUtils.get_timestamp(True)
-    zip_utils.zip_multiple_files(folderArr, outputSrc)
+    startTime = TimeUtils.get_timestamp()
+    print(zip_utils.zipper(folderArr, outputSrc))
+    # zip_utils.zip_single_folder("D:\\Python-frame\\UniTasker\\tasker\\src\\temp\\temp","D:\\Python-frame\\UniTasker\\tasker\\src\\temp\\temp2.zip")
 
-    endTime = TimeUtils.get_timestamp(True)
+    endTime = TimeUtils.get_timestamp()
     print(TimeUtils.time_difference(startTime, endTime))
