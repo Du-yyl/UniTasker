@@ -97,7 +97,6 @@ class rar_utils:
 
         return "无匹配密码"
 
-    # todo:该方法存在问题，无法进行批量破解
     @staticmethod
     def blow_up_decrypt(file_path, passwords):
         """
@@ -106,11 +105,15 @@ class rar_utils:
         :param passwords: 密码列表
         """
         passwords.append(None)
+        # 所传递文件夹的父路径
+        path = os.path.dirname(file_path)
         for password in passwords:
             try:
-                rar_utils.decrypt_file(file_path, None, password)
-            except RuntimeError:
-                print(password+"密码错误")
+                print(file_path, path, password)
+                rar_utils.decrypt_file(file_path, path, password)
+                return "爆破成功", password
+            except Exception:
+                print(password + "密码错误")
 
         return "无匹配密码"
 
@@ -118,6 +121,6 @@ class rar_utils:
 if __name__ == '__main__':
     file_path = "D:\\Python-frame\\UniTasker\\tasker\\src\\temp\\test_rar.rar"
     extract_path = "D:\\Python-frame\\UniTasker\\tasker\\src\\temp\\test_rar"
-    pwd = "anhfree.com"
-    print(rar_utils.decrypt_file(file_path, extract_path, pwd))
+    pwd = ["anhfree.com"]
+    print(rar_utils.blow_up_decrypt(file_path, pwd))
     # print(rar_utils.blow_up_decrypt(file_path, pwd))
